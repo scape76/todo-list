@@ -1,14 +1,22 @@
-import { tasks } from "./storage.js";
-import { createEvent } from "./createEvent.js";
-import { renderListItems } from "./tasksList.js"
-import {confirmItem} from "./confirmTask.js" 
- 
+import { initTodoListHandlers } from './todoList.js';
+import { renderTasks } from './renderer.js';
+import { getTasksList } from './tasksGateway.js';
+import { setItem } from './storage.js';
+
+
 document.addEventListener('DOMContentLoaded', () => {
-    renderListItems(tasks);
-})
+    getTasksList()
+        .then(tasksList => {
+            setItem('tasksList', tasksList);
+            renderTasks();
+        });
+    initTodoListHandlers();
+});
 
-const attachBtn = document.querySelector('.create-task-btn');
-attachBtn.addEventListener('click', createEvent);
+const onStorageChange = e => {
+    if (e.key === 'tasksList') {
+        renderTasks();
+    }
+};
 
-const confirmEvent = document.querySelector('.list');
-confirmEvent.addEventListener('click', confirmItem);
+window.addEventListener('storage', onStorageChange);
